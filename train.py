@@ -38,7 +38,7 @@ batch_size = args.batch_size
 epochs = args.epoch
 test_length = args.test_length
 
-base_root = '/home/zmj/Desktop/precode/data/'
+base_root = '/home/zmj/Desktop/precode/data/DV_dataset/'
 data_root = base_root + 'DUU_EZF_dataset_%d_%d_%d_%d_%d.mat'%(Nt,Nr,K,dk,SNR_dB)
 train_mode = 'train'
 model_name = 'CNN2D'
@@ -149,7 +149,7 @@ if __name__ == "__main__":
         model.to(device)
 
     '''supervised learning'''
-    best_su_model_path = './model/DUU_models_%d_%d_%d_%d_%d_su.pth'%(Nt,Nr,K,dk,SNR_dB)
+    best_su_model_path = base_root + 'model/DUU_models_%d_%d_%d_%d_%d_su.pth'%(Nt,Nr,K,dk,SNR_dB)
     train_su_dataloader = DataLoader(total_dataset.train_su_dataset, shuffle=False, batch_size=batch_size, drop_last=True)
 
     valid_su_dataloader = DataLoader(total_dataset.valid_su_dataset, shuffle=False, batch_size=batch_size, drop_last=True)
@@ -157,7 +157,7 @@ if __name__ == "__main__":
     print('supervised learning complete!')
 
     '''unsupervised learning'''
-    best_un_model_path = './model/DUU_models_%d_%d_%d_%d_%d_un.pth' % (Nt, Nr, K, dk, SNR_dB)
+    best_un_model_path = base_root + 'model/DUU_models_%d_%d_%d_%d_%d_un.pth' % (Nt, Nr, K, dk, SNR_dB)
     train_un_dataloader = DataLoader(total_dataset.train_un_dataset, shuffle=False, batch_size=batch_size, drop_last=True)
     valid_un_dataloader = DataLoader(total_dataset.valid_un_dataset, shuffle=False, batch_size=batch_size, drop_last=True)
     train(train_un_dataloader,valid_un_dataloader, model, criterion=SMR_loss,save_path = best_un_model_path, lr = 1e-3)

@@ -35,7 +35,7 @@ data_mode = 'debug'
 #     test_length = 2000
 #     epochs = 10
 
-dataset_root = '/home/zmj/Desktop/precode/data/DV_dataset'
+dataset_root = '/home/zmj/Desktop/precode/data/DV_dataset/'
 data_root = '/home/zmj/Desktop/precode/data/channel_data_full_user.mat'
 channels = hdf5storage.loadmat(data_root)['H_list'][:, :, :, :K]
 model_root = './model/'

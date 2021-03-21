@@ -45,10 +45,8 @@ class Dataset_load():
         else:
             data_num = 2*test_length
         H = total_dataset['H'][-data_num:,:]
-        transmit_pa = total_dataset['transmit_power_allocation'][-data_num:,:]
-        upload_pa = total_dataset['upload_power_allocation'][-data_num:,:]
-        MRT_ratio = total_dataset['MRT_ratio'][-data_num:,:]
-        labelset_su = np.concatenate((transmit_pa, upload_pa, MRT_ratio), axis=-1)
+
+        labelset_su = total_dataset['V'][-data_num:,:]
         SNR = 10**(SNR_dB/10)
         SNR_channel = 10**(SNR_channel_dB/10)
         noise_energy = 1 / SNR_channel
@@ -56,24 +54,8 @@ class Dataset_load():
                     np.random.randn(data_num, Nt, Nr, K) + 1j * np.random.randn(data_num, Nt, Nr, K))
         H_noiseless = H
         H = H_noiseless + channel_noise
-        H_ensemble = np.transpose(H, (0, 3, 2, 1))
-        H_ensemble = np.reshape(H_ensemble, (data_num, K * Nr, Nt))
-        H_bar = np.zeros((data_num, K * Nr, K * Nr)) + 1j * np.zeros((data_num, K * Nr, K * Nr))
-        for i in range(len(H_ensemble)):
-            H_bar[i] = H_ensemble[i].dot(np.transpose(np.conjugate(H_ensemble[i])))
-        dataset = np.triu(np.real(H_bar)) + np.tril(np.imag(H_bar))
 
 
-        # preprocessing
-        dataset = np.reshape(dataset, (data_num, -1))
-        scaler = preprocessing.StandardScaler()
-        scaler.fit(dataset)
-        dataset = scaler.transform(dataset)
-        dataset = np.reshape(dataset, (data_num, K * Nr, K * Nr))
-
-        dataset = np.expand_dims(dataset, axis=-1)
-        test_dataset = dataset[-test_length:, :]
-        dataset = dataset[:-test_length, :]
 
         test_labelset_su = labelset_su[-test_length:,:]
         labelset_su = labelset_su[:-test_length, :]
@@ -87,19 +69,18 @@ class Dataset_load():
         test_H_noiseless = H_noiseless[-test_length:, :]
         H_noiseless = H_noiseless[:-test_length, :]
 
-        channel_merge = np.concatenate((H_noiseless,H),axis = -1)
-        test_channel_merge = np.concatenate((test_H_noiseless, test_H), axis=-1)
+
         #channel_merge = {'H_noiseless':H_noiseless,'H':H}
         #test_chanenl_merge = {'H_noiseless': test_H_noiseless, 'H': test_H}
-        train_su_dataset = MyDataset(dataset,labelset_su,mode='su')
+        train_su_dataset = MyDataset(H,labelset_su,mode='su')
         self.train_su_dataset,self.valid_su_dataset = torch.utils.data.random_split(train_su_dataset,
                                                         [len(train_su_dataset)-len(train_su_dataset)//10,
                                                          len(train_su_dataset)//10])
-        train_un_dataset = MyDataset(dataset,channel_merge,mode = 'un')
+        train_un_dataset = MyDataset(H,H_noiseless,mode = 'un')
         self.train_un_dataset, self.valid_un_dataset = torch.utils.data.random_split(train_un_dataset,
                                                                                      [len(train_un_dataset) -
                                                                                       len(train_un_dataset) // 10,
                                                                                       len(train_un_dataset) // 10])
         #self.train_su_dataset = MyDataset(dataset,labelset_su)
-        self.test_su_dataset = MyDataset(test_dataset,test_labelset_su,mode = 'un')
-        self.test_un_dataset = MyDataset(test_dataset,test_channel_merge,mode = 'un')
+        self.test_su_dataset = MyDataset(test_H,test_labelset_su,mode = 'un')
+        self.test_un_dataset = MyDataset(test_H,test_H_noiseless,mode = 'un')
