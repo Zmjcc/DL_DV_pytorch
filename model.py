@@ -45,7 +45,6 @@ class Loss_utils():
 
         loss = F.mse_loss(y_pred, y_true, reduction='mean')
         return loss
-
     def SMR_loss(self,y_true,y_pred):
         Nt = self.Nt
         Nr = self.Nr
@@ -60,9 +59,12 @@ class Loss_utils():
         # p_list_pred = y_pred[:, :K * dk].type_as(H)
         # q_list_pred = y_pred[:, K * dk:2 * K * dk].type_as(H)
         # mrt_list_pred = y_pred[:, -1:].type_as(H)
-
         #restore V
         V = torch.view_as_complex(y_pred.reshape((-1,Nt,dk,K,2)).contiguous())
+        '''precode matrix normalize'''
+        V_flatten = V.reshape((-1,Nt*dk*K))
+        energy_scale = torch.linalg.norm(V_flatten,axis=1).reshape((-1,1,1,1)).repeat(1,Nt,dk,K).type_as(H)
+        V = V/energy_scale
         #V = self.DUU_EZF(H,p_list_pred,q_list_pred,mrt_list_pred)
         '''need to change for normal runing'''
         sum_rate = torch.zeros(1).cuda()
@@ -81,6 +83,7 @@ class Loss_utils():
                 rate_k = torch.log2(complex_det(SINR_k + torch.eye(Nr).type_as(H).reshape((1,Nr,Nr)).repeat(batch_size,1,1)))
             sum_rate = sum_rate + rate_k
         sum_rate = - sum_rate
+        #self.minus_sum_rate_loss(H.detach().cpu().numpy(), V.detach().cpu().numpy())
         return torch.mean(sum_rate)
 
 

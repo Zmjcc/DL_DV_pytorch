@@ -149,12 +149,12 @@ if __name__ == "__main__":
         model.to(device)
 
     '''supervised learning'''
-    best_su_model_path = base_root + 'model/DUU_models_%d_%d_%d_%d_%d_su.pth'%(Nt,Nr,K,dk,SNR_dB)
-    train_su_dataloader = DataLoader(total_dataset.train_su_dataset, shuffle=False, batch_size=batch_size, drop_last=True)
-
-    valid_su_dataloader = DataLoader(total_dataset.valid_su_dataset, shuffle=False, batch_size=batch_size, drop_last=True)
-    train(train_su_dataloader,valid_su_dataloader, model, criterion=MSE_loss,save_path = best_su_model_path,  lr = 1e-2)
-    print('supervised learning complete!')
+    # best_su_model_path = base_root + 'model/DUU_models_%d_%d_%d_%d_%d_su.pth'%(Nt,Nr,K,dk,SNR_dB)
+    # train_su_dataloader = DataLoader(total_dataset.train_su_dataset, shuffle=False, batch_size=batch_size, drop_last=True)
+    #
+    # valid_su_dataloader = DataLoader(total_dataset.valid_su_dataset, shuffle=False, batch_size=batch_size, drop_last=True)
+    # train(train_su_dataloader,valid_su_dataloader, model, criterion=MSE_loss,save_path = best_su_model_path,  lr = 1e-2)
+    # print('supervised learning complete!')
 
     '''unsupervised learning'''
     best_un_model_path = base_root + 'model/DUU_models_%d_%d_%d_%d_%d_un.pth' % (Nt, Nr, K, dk, SNR_dB)
